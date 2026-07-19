@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>OGON — Six dishes. One fire.</title>
+  <meta name="description" content="A tasting counter built around a single open hearth. Twelve seats. One sitting a night." />
+
+  <link rel="stylesheet" href="styles.css?v=2" />
+
+  <!-- Marks that JS is running, so the hidden start-state only applies with JS.
+       No JS / JS error -> content stays visible instead of being trapped hidden. -->
+  <script>document.documentElement.classList.add("js");</script>
+</head>
+<body>
+  <!-- Ambient film grain over the whole page -->
+  <div class="grain" aria-hidden="true"></div>
+
+  <header class="nav">
+    <div class="nav-inner">
+      <a class="logo" href="#top" aria-label="OGON home">OGON<span class="ember" aria-hidden="true"></span></a>
+
+      <nav class="nav-links" aria-label="Primary">
+        <a href="#menu">Menu</a>
+        <a href="#fire">Fire</a>
+        <a href="#room">Room</a>
+      </nav>
+
+      <a class="book" href="#reserve">Book a table</a>
+
+      <button class="burger" aria-label="Open menu" aria-expanded="false">
+        <span></span><span></span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Full-screen nav popup (tablet and below) -->
+  <div class="nav-popup" aria-hidden="true">
+    <button class="nav-popup-close" aria-label="Close menu">&times;</button>
+    <nav class="nav-popup-links" aria-label="Mobile">
+      <a href="#menu">Menu</a>
+      <a href="#fire">Fire</a>
+      <a href="#room">Room</a>
+      <a href="#reserve">Book a table</a>
+    </nav>
+  </div>
+
+  <main id="top">
+    <section class="hero">
+      <!-- Ember video layer. Until assets/embers.mp4 exists, the video renders
+           nothing and the warm placeholder background shows through. -->
+      <div class="hero-media" aria-hidden="true">
+        <video class="hero-video" muted loop playsinline preload="auto" poster="assets/embers-poster.jpg">
+          <source src="assets/embers.mp4" type="video/mp4" />
+        </video>
+      </div>
+
+      <!-- soft scrim: darkens the band behind the text so it stays legible over the fire -->
+      <div class="hero-scrim" aria-hidden="true"></div>
+
+      <div class="hero-content">
+        <h1 class="hero-title">
+          <span class="line"><span>Six dishes.</span></span>
+          <span class="line"><span>One fire.</span></span>
+        </h1>
+        <p class="hero-sub">A tasting counter built around a single open hearth.<br />Twelve seats. One sitting a night.</p>
+      </div>
+
+      <a class="scroll" href="#manifesto" aria-label="Scroll down">
+        <span class="scroll-label">Scroll</span>
+        <span class="scroll-line" aria-hidden="true"></span>
+      </a>
+    </section>
+
+    <section class="manifesto" id="manifesto">
+      <!-- brass halo that trails the cursor (desktop only, JS-driven) -->
+      <div class="halo" aria-hidden="true"></div>
+      <p class="manifesto-text">No gas. No electric.<br />Only birch embers, salt, and time.</p>
+      <a class="scroll" href="#menu" aria-label="Scroll down">
+        <span class="scroll-label">Scroll</span>
+        <span class="scroll-line" aria-hidden="true"></span>
+      </a>
+    </section>
+
+    <section class="menu" id="menu" aria-label="Tasting menu">
+      <div class="menu-track">
+        <header class="menu-intro">
+          <h2 class="menu-heading">The set</h2>
+          <p class="menu-note">Six courses. The menu changes with the wood, the season, and the weather.</p>
+        </header>
+
+        <article class="dish">
+          <span class="dish-numeral" aria-hidden="true">I</span>
+          <div class="dish-media"><img src="assets/dish-1.jpg" alt="Seared scallop with brown butter" loading="lazy" /></div>
+          <h3 class="dish-name">Scallop. Brown butter. Char.</h3>
+        </article>
+
+        <article class="dish">
+          <span class="dish-numeral" aria-hidden="true">II</span>
+          <div class="dish-media"><img src="assets/dish-2.jpg" alt="Leek baked whole in ash" loading="lazy" /></div>
+          <h3 class="dish-name">Leek, buried in ash.</h3>
+        </article>
+
+        <article class="dish">
+          <span class="dish-numeral" aria-hidden="true">III</span>
+          <div class="dish-media"><img src="assets/dish-3.jpg" alt="Aged duck breast, seared" loading="lazy" /></div>
+          <h3 class="dish-name">Duck, aged fourteen days.</h3>
+        </article>
+
+        <article class="dish">
+          <span class="dish-numeral" aria-hidden="true">IV</span>
+          <div class="dish-media"><img src="assets/dish-4.jpg" alt="Dark bread loaf, torn open" loading="lazy" /></div>
+          <h3 class="dish-name">Bread from yesterday&rsquo;s fire.</h3>
+        </article>
+
+        <article class="dish">
+          <span class="dish-numeral" aria-hidden="true">V</span>
+          <div class="dish-media"><img src="assets/dish-5.jpg" alt="Glazed beef short rib on the bone" loading="lazy" /></div>
+          <h3 class="dish-name">Beef rib, four hours over birch.</h3>
+        </article>
+
+        <article class="dish">
+          <span class="dish-numeral" aria-hidden="true">VI</span>
+          <div class="dish-media"><img src="assets/dish-6.jpg" alt="Smoked cream with burnt honey" loading="lazy" /></div>
+          <h3 class="dish-name">Smoked cream. Burnt honey.</h3>
+        </article>
+      </div>
+    </section>
+
+    <section class="fire" id="fire">
+      <div class="fire-media" aria-hidden="true">
+        <img src="assets/fire.jpg" alt="" loading="lazy" />
+      </div>
+      <div class="fire-scrim" aria-hidden="true"></div>
+      <blockquote class="fire-quote">
+        <p>Fire is the only ingredient<br />we don&rsquo;t control.</p>
+        <cite>M. Voronov, chef</cite>
+      </blockquote>
+      <a class="scroll" href="#room" aria-label="Scroll down">
+        <span class="scroll-label">Scroll</span>
+        <span class="scroll-line" aria-hidden="true"></span>
+      </a>
+    </section>
+
+    <section class="room" id="room">
+      <div class="room-inner">
+        <div class="room-head">
+          <h2 class="room-heading">The Room</h2>
+          <p class="room-note">Twelve seats around the hearth. The kitchen is the dining room.</p>
+          <p class="room-hours">Wed &ndash; Sun &middot; One sitting &middot; 19:00</p>
+        </div>
+        <figure class="room-fig room-fig-1"><img src="assets/room-1.jpg" alt="The counter and open hearth" loading="lazy" /></figure>
+        <figure class="room-fig room-fig-2"><img src="assets/room-2.jpg" alt="The chef salting bread over the coals" loading="lazy" /></figure>
+        <figure class="room-fig room-fig-3"><img src="assets/room-3.jpg" alt="A place setting: black plate, aged brass, linen" loading="lazy" /></figure>
+      </div>
+    </section>
+
+    <section class="reserve" id="reserve">
+      <div class="reserve-inner">
+        <h2 class="reserve-heading">Book a table</h2>
+        <p class="reserve-note">Twelve seats. One sitting, 19:00. We confirm every request by hand.</p>
+
+        <form class="reserve-form" novalidate>
+          <div class="field">
+            <label for="f-name">Name</label>
+            <input id="f-name" name="name" type="text" autocomplete="name" required />
+          </div>
+          <div class="field">
+            <label for="f-email">Email</label>
+            <input id="f-email" name="email" type="email" autocomplete="email" required />
+          </div>
+          <div class="field">
+            <label for="f-date">Date</label>
+            <input id="f-date" name="date" type="date" required />
+          </div>
+          <div class="field">
+            <label for="f-guests">Guests</label>
+            <select id="f-guests" name="guests">
+              <option>2</option><option>3</option><option>4</option><option>5</option>
+              <option>6</option><option>7</option><option>8</option><option>9</option>
+              <option>10</option><option>11</option><option>12</option>
+            </select>
+          </div>
+          <div class="field field-wide">
+            <label for="f-note">Note <span class="optional">optional</span></label>
+            <textarea id="f-note" name="note" rows="1"></textarea>
+          </div>
+          <button class="reserve-submit" type="submit">Request a table</button>
+        </form>
+
+        <p class="reserve-success" role="status" aria-live="polite" hidden>
+          Your request is in. We reply within a day.
+        </p>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+      <span class="footer-logo">OGON<span class="ember" aria-hidden="true"></span></span>
+      <p class="footer-line">17 Coal Yard, London E2 &middot; Wed &ndash; Sun &middot; One sitting &middot; 19:00</p>
+      <p class="footer-line footer-fine">ogon.rest &middot; @ogon &middot; &copy; 2026</p>
+    </div>
+  </footer>
+
+  <!-- GSAP for the pinned horizontal menu; main.js degrades to the vertical
+       stack if the CDN ever fails, so order here is the only hard requirement -->
+  <script src="assets/js/gsap.min.js"></script>
+  <script src="assets/js/scrolltrigger.min.js"></script>
+  <script src="main.js?v=2"></script>
+</body>
+</html>

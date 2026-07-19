@@ -1,0 +1,886 @@
+/* ============================================================
+   FONTS — self-hosted latin subset (no Google Fonts / external CDN,
+   so the site loads fully on networks that throttle foreign CDNs)
+   ============================================================ */
+@font-face {
+  font-family: "Instrument Serif";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("assets/fonts/instrument-serif-400.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Geist";
+  font-style: normal;
+  font-weight: 100 900; /* variable file covers 300–500 used on the site */
+  font-display: swap;
+  src: url("assets/fonts/geist.woff2") format("woff2");
+}
+
+/* ============================================================
+   OGON — design tokens (source of truth: ../ТЗ.md §2)
+   ============================================================ */
+:root {
+  --bg: #0C0A09;        /* warm near-black */
+  --cream: #F5EFE6;     /* warm cream */
+  --brass: #B08D57;     /* the ONLY accent */
+
+  /* text opacity hierarchy: title 100 / sub 75 / caption 55 */
+  --t-100: var(--cream);
+  --t-75: rgba(245, 239, 230, 0.75);
+  --t-55: rgba(245, 239, 230, 0.55);
+  --t-40: rgba(245, 239, 230, 0.40);
+
+  --wrap: 1400px;
+  --nav-h: 88px;
+
+  --font-display: "Instrument Serif", Georgia, serif;
+  --font-body: "Geist", system-ui, -apple-system, sans-serif;
+
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* ---------- reset ---------- */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--t-100);
+  font-family: var(--font-body);
+  font-weight: 300;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  overflow-x: hidden;
+}
+
+a { color: inherit; text-decoration: none; }
+
+/* ---------- ambient film grain ---------- */
+.grain {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  pointer-events: none;
+  opacity: 0.05;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* ============================================================
+   NAVBAR — liquid glass
+   ============================================================ */
+.nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 50;
+  height: var(--nav-h);
+  display: flex;
+  align-items: center;
+}
+
+.nav-inner {
+  width: 100%;
+  max-width: var(--wrap);
+  margin: 0 auto;
+  padding: 0 40px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.logo {
+  font-family: var(--font-display);
+  font-size: 26px;
+  letter-spacing: 0.22em;
+  padding-left: 0.22em; /* optical: compensate the tracking */
+  display: inline-flex;
+  align-items: baseline;
+}
+
+/* the ember: brass dot that echoes across the whole site (visual rhyme) */
+.ember {
+  width: 6px;
+  height: 6px;
+  margin-left: 6px;
+  border-radius: 50%;
+  background: var(--brass);
+  box-shadow: 0 0 8px 1px rgba(176, 141, 87, 0.7);
+  align-self: center;
+}
+
+.nav-links {
+  display: flex;
+  gap: 40px;
+  font-size: 15px;
+  letter-spacing: 0.02em;
+}
+
+.nav-links a {
+  color: var(--t-75);
+  position: relative;
+  padding: 4px 0;
+  transition: color 0.4s var(--ease);
+}
+
+.nav-links a::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: -2px;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--brass);
+  opacity: 0;
+  transform: translateX(-50%) scale(0.5);
+  transition: opacity 0.4s var(--ease), transform 0.4s var(--ease);
+}
+
+.nav-links a:hover { color: var(--t-100); }
+.nav-links a:hover::after { opacity: 1; transform: translateX(-50%) scale(1); }
+
+.book {
+  font-size: 14px;
+  letter-spacing: 0.03em;
+  color: var(--t-100);
+  padding: 11px 22px;
+  border-radius: 100px;
+  border: 1px solid rgba(245, 239, 230, 0.18);
+  background: rgba(245, 239, 230, 0.04);
+  backdrop-filter: blur(14px) saturate(1.2);
+  -webkit-backdrop-filter: blur(14px) saturate(1.2);
+  transition: border-color 0.4s var(--ease), background 0.4s var(--ease), color 0.4s var(--ease);
+}
+
+.book:hover {
+  border-color: rgba(176, 141, 87, 0.6);
+  background: rgba(176, 141, 87, 0.12);
+  color: var(--cream);
+}
+
+/* burger — hidden on desktop */
+.burger {
+  display: none;
+  flex-direction: column;
+  gap: 6px;
+  background: none;
+  border: 0;
+  cursor: pointer;
+  padding: 8px;
+}
+.burger span {
+  width: 26px;
+  height: 1.5px;
+  background: var(--cream);
+  transition: transform 0.35s var(--ease), opacity 0.35s var(--ease);
+}
+
+/* ---------- full-screen nav popup ---------- */
+.nav-popup {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  background: rgba(12, 10, 9, 0.96);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.5s var(--ease), visibility 0.5s var(--ease);
+}
+.nav-popup.open { opacity: 1; visibility: visible; }
+
+.nav-popup-close {
+  position: absolute;
+  top: 28px;
+  right: 34px;
+  font-size: 40px;
+  line-height: 1;
+  color: var(--t-75);
+  background: none;
+  border: 0;
+  cursor: pointer;
+  font-family: var(--font-body);
+  font-weight: 300;
+}
+
+.nav-popup-links {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 28px;
+}
+.nav-popup-links a {
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 9vw, 3.2rem);
+  color: var(--t-75);
+  transition: color 0.4s var(--ease);
+}
+.nav-popup-links a:hover { color: var(--cream); }
+
+/* ============================================================
+   HERO — the star of the show
+   ============================================================ */
+.hero {
+  position: relative;
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  text-align: center;
+  /* text sits in the upper third so the fire owns the bottom cleanly */
+  padding: calc(var(--nav-h) + clamp(40px, 11vh, 130px)) 40px 0;
+  overflow: hidden;
+}
+
+.hero-media {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background: var(--bg);
+  /* faint warmth from below, echoing hearth light — no hard gradient bands.
+     Also the graceful fallback shown until the ember video exists. */
+  background-image: radial-gradient(120% 80% at 50% 118%, rgba(176, 141, 87, 0.10), transparent 60%);
+  overflow: hidden;
+}
+
+/* ember video: black plate drops out via 'screen', only embers/sparks glow */
+.hero-video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  mix-blend-mode: screen;
+  opacity: 0;
+  transition: opacity 1.2s var(--ease);
+}
+.hero-video.ready { opacity: 1; }
+
+/* soft scrim between video and text — darkest behind the headline band,
+   clear at the very top (keeps the black) and at the bottom (embers show) */
+.hero-scrim {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background: linear-gradient(
+    to bottom,
+    rgba(12, 10, 9, 0) 6%,
+    rgba(12, 10, 9, 0.5) 24%,
+    rgba(12, 10, 9, 0.5) 58%,
+    rgba(12, 10, 9, 0) 82%
+  );
+}
+
+.hero-content {
+  position: relative;
+  z-index: 2;
+  max-width: var(--wrap);
+}
+
+.hero-title {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: clamp(3.4rem, 11.5vw, 10.5rem);
+  line-height: 0.92;
+  letter-spacing: -0.01em;
+  color: var(--t-100);
+}
+
+/* line masks enable the staggered fade-up reveal.
+   The hidden start-state lives ONLY in the load-animation block below
+   (html.js body:not(.loaded) ...), never here — otherwise the title would
+   stay clipped forever regardless of the reveal. */
+.hero-title .line { display: block; overflow: hidden; }
+.hero-title .line > span { display: block; }
+
+.hero-sub {
+  margin-top: 36px;
+  font-size: clamp(1rem, 1.5vw, 1.25rem);
+  font-weight: 300;
+  line-height: 1.6;
+  letter-spacing: 0.01em;
+  color: var(--t-75);
+}
+
+/* ---------- scroll indicator ---------- */
+.scroll {
+  position: absolute;
+  bottom: 38px;
+  left: 50%;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 13px;
+  /* gentle bob to catch the eye (translateX keeps it centred) */
+  animation: scrollBob 2.8s var(--ease) infinite;
+}
+@keyframes scrollBob {
+  0%, 100% { transform: translateX(-50%) translateY(0); }
+  50%      { transform: translateX(-50%) translateY(7px); }
+}
+.scroll-label {
+  font-size: 12px;
+  letter-spacing: 0.42em;
+  text-transform: uppercase;
+  color: var(--t-75);
+  padding-left: 0.42em;
+  /* legible over the bright embers at the bottom edge */
+  text-shadow: 0 1px 12px rgba(12, 10, 9, 0.98), 0 0 4px rgba(12, 10, 9, 0.95);
+}
+.scroll-line {
+  width: 1px;
+  height: 58px;
+  background: linear-gradient(to bottom, rgba(245, 239, 230, 0.55), rgba(245, 239, 230, 0.05));
+  position: relative;
+  overflow: hidden;
+}
+/* an ember trickling down the line */
+.scroll-line::after {
+  content: "";
+  position: absolute;
+  top: -32%;
+  left: -0.5px;
+  width: 2px;
+  height: 32%;
+  background: var(--brass);
+  box-shadow: 0 0 7px 1px rgba(176, 141, 87, 0.85);
+  animation: trickle 2.4s var(--ease) infinite;
+}
+@keyframes trickle {
+  0%   { transform: translateY(0); opacity: 0; }
+  25%  { opacity: 1; }
+  100% { transform: translateY(300%); opacity: 0; }
+}
+
+/* ============================================================
+   MANIFESTO — one sentence, a lot of dark
+   ============================================================ */
+.manifesto {
+  position: relative;
+  min-height: 100svh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 120px 40px;
+  overflow: hidden;
+  /* subtle radial vignette so the section melts into the hero above */
+  background-image: radial-gradient(90% 70% at 50% 50%, rgba(245, 239, 230, 0.015), transparent 70%);
+}
+
+.manifesto-text {
+  position: relative;
+  z-index: 1;
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: clamp(1.9rem, 4.2vw, 3.6rem);
+  line-height: 1.3;
+  color: var(--t-100);
+  max-width: 22ch;
+}
+
+/* the brass halo that trails the cursor — positioned by JS, very quiet */
+.halo {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 520px;
+  height: 520px;
+  margin: -260px 0 0 -260px; /* center on the JS-driven translate point */
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(176, 141, 87, 0.12), transparent 62%);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.8s var(--ease);
+  will-change: transform;
+}
+.manifesto.halo-on .halo { opacity: 1; }
+
+/* scroll reveal: hidden only when JS runs and section not yet in view */
+.manifesto-text { transition: opacity 1.1s var(--ease), transform 1.1s var(--ease); }
+html.js .manifesto:not(.inview) .manifesto-text {
+  opacity: 0;
+  transform: translateY(26px);
+}
+
+/* ============================================================
+   THE MENU — six courses
+   Default layout (mobile / no JS): calm vertical stack.
+   .is-horizontal (added by JS only when GSAP is ready, desktop): pinned
+   horizontal scrub — so a failed CDN can never leave the section broken.
+   ============================================================ */
+.menu {
+  position: relative;
+  overflow: hidden;
+  padding: 140px 0;
+}
+
+.menu-track {
+  display: flex;
+  flex-direction: column;
+  gap: 110px;
+  max-width: var(--wrap);
+  margin: 0 auto;
+  padding: 0 40px;
+}
+
+.menu-intro { max-width: 34ch; }
+
+.menu-heading {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: clamp(2.6rem, 6vw, 5rem);
+  line-height: 1;
+  color: var(--t-100);
+}
+
+.menu-note {
+  margin-top: 22px;
+  font-size: clamp(0.95rem, 1.2vw, 1.1rem);
+  line-height: 1.6;
+  color: var(--t-75);
+  max-width: 30ch;
+}
+
+.dish {
+  position: relative;
+  max-width: 560px;
+}
+
+.dish-numeral {
+  display: block;
+  font-family: var(--font-display);
+  font-size: clamp(3.2rem, 7vw, 5.5rem);
+  line-height: 1;
+  color: var(--brass);
+  opacity: 0.55;
+  margin-bottom: 18px;
+}
+
+.dish-media {
+  position: relative;
+  aspect-ratio: 4 / 5;
+  overflow: hidden;
+  background: rgba(245, 239, 230, 0.03);
+}
+
+.dish-media img {
+  width: 108%;              /* small bleed for the parallax drift */
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* photo not there yet -> quiet placeholder: faint outline + ember dot */
+.dish-media.missing img { display: none; }
+.dish-media.missing {
+  outline: 1px solid rgba(245, 239, 230, 0.08);
+  outline-offset: -1px;
+}
+.dish-media.missing::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 6px;
+  height: 6px;
+  margin: -3px 0 0 -3px;
+  border-radius: 50%;
+  background: var(--brass);
+  box-shadow: 0 0 10px 2px rgba(176, 141, 87, 0.5);
+  opacity: 0.7;
+}
+
+.dish-name {
+  margin-top: 20px;
+  font-family: var(--font-body);
+  font-weight: 300;
+  font-size: clamp(1.05rem, 1.4vw, 1.25rem);
+  letter-spacing: 0.01em;
+  color: var(--t-100);
+}
+
+/* --- pinned horizontal mode (desktop + GSAP loaded) --- */
+.menu.is-horizontal { padding: 0; }
+.menu.is-horizontal .menu-track {
+  flex-direction: row;
+  align-items: center;
+  gap: clamp(70px, 8vw, 140px);
+  width: max-content;
+  max-width: none;
+  height: 100svh;
+  padding: 0 max(40px, calc((100vw - 1400px) / 2 + 40px));
+  will-change: transform;
+}
+.menu.is-horizontal .menu-intro { flex: 0 0 auto; width: 34ch; }
+.menu.is-horizontal .dish {
+  flex: 0 0 auto;
+  width: clamp(340px, 30vw, 480px);
+}
+
+/* ============================================================
+   THE FIRE — full-bleed still, one quote
+   Static image (lighter than a 2nd video) with a very slow drift + grain,
+   per the ТЗ fallback. Scrim keeps the quote legible over the flames.
+   ============================================================ */
+.fire {
+  position: relative;
+  min-height: 100svh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  overflow: hidden;
+}
+
+.fire-media {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+.fire-media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transform: scale(1.06);
+  transition: transform 12s linear;
+}
+.fire.inview .fire-media img { transform: scale(1.12); } /* slow Ken Burns drift */
+
+/* vignette + center darken: frames the fire at ANY crop (incl. square windows,
+   where a wide image over-zooms) so it reads composed, not a bright wall */
+.fire-scrim {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background:
+    /* edge vignette — the frame */
+    radial-gradient(125% 95% at 50% 52%, transparent 40%, rgba(12, 10, 9, 0.64) 100%),
+    /* darken behind the centred quote */
+    radial-gradient(58% 42% at 50% 50%, rgba(12, 10, 9, 0.6), transparent 78%),
+    /* seat the section into the dark at top and bottom */
+    linear-gradient(to bottom, rgba(12, 10, 9, 0.5) 0%, transparent 30%, transparent 72%, rgba(12, 10, 9, 0.42) 100%);
+}
+
+.fire-quote {
+  position: relative;
+  z-index: 2;
+  margin: 0;
+  padding: 40px;
+  max-width: 20ch;
+}
+.fire-quote p {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: clamp(1.9rem, 4.4vw, 3.8rem);
+  line-height: 1.22;
+  color: var(--t-100);
+  text-shadow: 0 2px 30px rgba(12, 10, 9, 0.6);
+}
+.fire-quote cite {
+  display: block;
+  margin-top: 26px;
+  font-family: var(--font-body);
+  font-weight: 300;
+  font-style: normal;
+  font-size: 13px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--t-55);
+}
+
+/* quote reveal on scroll */
+.fire-quote { transition: opacity 1.2s var(--ease), transform 1.2s var(--ease); }
+html.js .fire:not(.inview) .fire-quote { opacity: 0; transform: translateY(22px); }
+
+/* ============================================================
+   THE ROOM — asymmetric editorial grid (never three equal cards)
+   ============================================================ */
+.room { padding: 160px 40px; }
+
+.room-inner {
+  max-width: var(--wrap);
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  column-gap: 32px;
+  row-gap: 40px;
+  align-items: start;
+}
+
+.room-head { grid-column: 1 / 5; grid-row: 1; padding-top: 8px; }
+.room-heading {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: clamp(2.6rem, 6vw, 5rem);
+  line-height: 1;
+  color: var(--t-100);
+}
+.room-note {
+  margin-top: 22px;
+  font-size: clamp(0.95rem, 1.2vw, 1.1rem);
+  line-height: 1.6;
+  color: var(--t-75);
+  max-width: 26ch;
+}
+.room-hours {
+  margin-top: 26px;
+  font-size: 12px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--t-55);
+}
+
+.room-fig { margin: 0; overflow: hidden; }
+.room-fig img { width: 100%; height: auto; display: block; }
+
+/* asymmetry: one big frame, two smaller ones staggered vertically */
+.room-fig-1 { grid-column: 5 / 13; grid-row: 1; }
+.room-fig-2 { grid-column: 2 / 7;  grid-row: 2; margin-top: 48px; }
+.room-fig-3 { grid-column: 8 / 13; grid-row: 2; margin-top: 120px; }
+
+/* reveal on scroll, gently staggered */
+.room-fig, .room-head { transition: opacity 1s var(--ease), transform 1s var(--ease); }
+html.js .room:not(.inview) .room-fig,
+html.js .room:not(.inview) .room-head { opacity: 0; transform: translateY(28px); }
+.room.inview .room-fig-1 { transition-delay: 0.05s; }
+.room.inview .room-fig-2 { transition-delay: 0.18s; }
+.room.inview .room-fig-3 { transition-delay: 0.30s; }
+
+/* ============================================================
+   RESERVATIONS — quiet form, underline fields, brass focus
+   ============================================================ */
+.reserve {
+  padding: 160px 40px;
+  display: flex;
+  justify-content: center;
+}
+
+.reserve-inner { width: min(680px, 100%); }
+
+.reserve-heading {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: clamp(2.6rem, 6vw, 5rem);
+  line-height: 1;
+  color: var(--t-100);
+}
+
+.reserve-note {
+  margin-top: 22px;
+  font-size: clamp(0.95rem, 1.2vw, 1.1rem);
+  line-height: 1.6;
+  color: var(--t-75);
+  max-width: 44ch;
+}
+
+.reserve-form {
+  margin-top: 64px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 44px 40px;
+}
+
+.field { display: flex; flex-direction: column; gap: 10px; }
+.field-wide { grid-column: 1 / -1; }
+
+.field label {
+  font-size: 11px;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--t-55);
+}
+.field .optional { text-transform: none; letter-spacing: 0.04em; color: var(--t-40); }
+
+.field input,
+.field select,
+.field textarea {
+  appearance: none;
+  -webkit-appearance: none;
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid rgba(245, 239, 230, 0.18);
+  border-radius: 0;
+  padding: 8px 2px 12px;
+  font-family: var(--font-body);
+  font-weight: 300;
+  font-size: 1.05rem;
+  color: var(--t-100);
+  transition: border-color 0.4s var(--ease);
+}
+
+.field textarea {
+  /* No drag grip, no scrollbar: main.js grows the field to fit its content, so
+     the native white handle + scrollbar (jarring on this dark theme) never show. */
+  resize: none;
+  overflow: hidden;
+  line-height: 1.5;
+  min-height: 0;
+  height: calc(1.5em + 20px); /* starts as one line hugging the underline; grows on input */
+}
+
+.field select {
+  cursor: pointer;
+  /* tiny brass ember as the dropdown marker — the visual rhyme again */
+  background-image: radial-gradient(circle 3px at calc(100% - 8px) 45%, var(--brass) 98%, transparent);
+}
+.field select option { background: var(--bg); color: var(--cream); }
+
+/* date picker icon: dim it to match the quiet field */
+.field input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: invert(0.9);
+  opacity: 0.4;
+  cursor: pointer;
+}
+
+.field input:focus-visible,
+.field select:focus-visible,
+.field textarea:focus-visible {
+  outline: none;
+  border-bottom-color: var(--brass);
+}
+
+/* invalid only after the user tried to submit */
+.reserve-form.tried input:invalid,
+.reserve-form.tried select:invalid {
+  border-bottom-color: rgba(176, 141, 87, 0.85);
+}
+
+.reserve-submit {
+  grid-column: 1 / -1;
+  justify-self: start;
+  margin-top: 8px;
+  font-family: var(--font-body);
+  font-weight: 300;
+  font-size: 15px;
+  letter-spacing: 0.03em;
+  color: var(--t-100);
+  background: rgba(245, 239, 230, 0.04);
+  border: 1px solid rgba(245, 239, 230, 0.18);
+  border-radius: 100px;
+  padding: 15px 34px;
+  cursor: pointer;
+  transition: border-color 0.4s var(--ease), background 0.4s var(--ease);
+}
+.reserve-submit:hover,
+.reserve-submit:focus-visible {
+  outline: none;
+  border-color: rgba(176, 141, 87, 0.6);
+  background: rgba(176, 141, 87, 0.12);
+}
+
+.reserve-success {
+  margin-top: 64px;
+  font-family: var(--font-display);
+  font-size: clamp(1.4rem, 2.4vw, 2rem);
+  color: var(--t-100);
+}
+
+/* ============================================================
+   FOOTER
+   ============================================================ */
+.footer {
+  border-top: 1px solid rgba(245, 239, 230, 0.08);
+  padding: 56px 40px 64px;
+}
+
+.footer-inner {
+  max-width: var(--wrap);
+  margin: 0 auto;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 18px 40px;
+}
+
+.footer-logo {
+  font-family: var(--font-display);
+  font-size: 20px;
+  letter-spacing: 0.22em;
+  display: inline-flex;
+  align-items: baseline;
+  color: var(--t-100);
+}
+.footer-logo .ember { width: 5px; height: 5px; margin-left: 5px; }
+
+.footer-line { font-size: 13px; color: var(--t-55); }
+.footer-fine { color: var(--t-40); }
+
+/* ============================================================
+   LOAD ANIMATION — slow staggered fade-ups
+   Hidden start-state applies ONLY when JS runs (html.js) and before reveal.
+   No JS -> everything is visible by default (progressive enhancement).
+   ============================================================ */
+.hero-title .line > span { transition: transform 0.9s var(--ease); }
+.hero-sub, .scroll { transition: opacity 0.9s var(--ease); }
+
+html.js body:not(.loaded) .hero-title .line > span { transform: translateY(110%); }
+html.js body:not(.loaded) .hero-sub,
+html.js body:not(.loaded) .scroll { opacity: 0; }
+
+body.loaded .line:nth-child(1) > span { transition-delay: 0.15s; }
+body.loaded .line:nth-child(2) > span { transition-delay: 0.30s; }
+body.loaded .hero-sub  { transition-delay: 0.65s; }
+body.loaded .scroll    { transition-delay: 0.95s; }
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+@media (max-width: 860px) {
+  .nav-links, .book { display: none; }
+  .burger { display: flex; }
+  .nav-inner { padding: 0 26px; }
+  .hero { padding-left: 24px; padding-right: 24px; }
+
+  /* room: collapse the editorial grid into a clean single column */
+  .room { padding: 110px 24px; }
+  .room-inner { grid-template-columns: 1fr; row-gap: 26px; }
+  .room-head,
+  .room-fig-1, .room-fig-2, .room-fig-3 {
+    grid-column: 1;
+    grid-row: auto;
+    margin-top: 0;
+  }
+}
+
+@media (max-width: 640px) {
+  .reserve { padding: 110px 24px; }
+  .reserve-form { grid-template-columns: 1fr; gap: 36px; }
+  .footer { padding: 44px 24px 52px; }
+  .footer-inner { flex-direction: column; }
+}
+
+@media (max-width: 520px) {
+  .hero-sub br { display: none; }
+  .scroll { bottom: 28px; }
+}
+
+/* ============================================================
+   REDUCED MOTION
+   ============================================================ */
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  /* cancel the hidden start-state so content is shown instantly, no motion */
+  html.js body:not(.loaded) .hero-title .line > span { transform: none; }
+  html.js body:not(.loaded) .hero-sub,
+  html.js body:not(.loaded) .scroll { opacity: 1; }
+  html.js .manifesto:not(.inview) .manifesto-text { opacity: 1; transform: none; }
+  html.js .fire:not(.inview) .fire-quote { opacity: 1; transform: none; }
+  html.js .room:not(.inview) .room-fig,
+  html.js .room:not(.inview) .room-head { opacity: 1; transform: none; }
+  .fire-media img { transition: none; transform: scale(1.06); }
+  .halo { display: none; }
+  .scroll-line::after { animation: none; display: none; }
+  *, *::before, *::after { transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; }
+}
