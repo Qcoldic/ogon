@@ -250,6 +250,20 @@ a { color: inherit; text-decoration: none; }
   overflow: hidden;
 }
 
+/* Poster layer: the hero is never empty. It carries the embers while the video
+   is still decoding, and stays as the whole picture when playback is blocked
+   (reduced motion, iOS Low Power Mode). Fades out once the video is running. */
+.hero-media::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: url("assets/embers-poster.jpg") center / cover no-repeat;
+  mix-blend-mode: screen;
+  opacity: 0.6;
+  transition: opacity 1.2s var(--ease);
+}
+.hero-media.has-video::before { opacity: 0; }
+
 /* ember video: black plate drops out via 'screen', only embers/sparks glow */
 .hero-video {
   position: absolute;
@@ -320,12 +334,15 @@ a { color: inherit; text-decoration: none; }
   flex-direction: column;
   align-items: center;
   gap: 13px;
-  /* gentle bob to catch the eye (translateX keeps it centred) */
-  animation: scrollBob 2.8s var(--ease) infinite;
+  /* Breathing hint, not a twitch: var(--ease) is an ease-OUT curve — on a
+     looping bob it snaps down and crawls back, which reads as jitter. A
+     symmetric ease-in-out with a smaller amplitude is what "gentle" needs. */
+  transform: translateX(-50%);
+  animation: scrollBob 3.6s ease-in-out infinite;
 }
 @keyframes scrollBob {
   0%, 100% { transform: translateX(-50%) translateY(0); }
-  50%      { transform: translateX(-50%) translateY(7px); }
+  50%      { transform: translateX(-50%) translateY(5px); }
 }
 .scroll-label {
   font-size: 12px;
@@ -842,6 +859,10 @@ body.loaded .scroll    { transition-delay: 0.95s; }
   .burger { display: flex; }
   .nav-inner { padding: 0 26px; }
   .hero { padding-left: 24px; padding-right: 24px; }
+
+  /* On a phone the indicator sits right at the thumb — the bob reads as a
+     twitch there whatever the curve. The trickling ember alone carries it. */
+  .scroll { animation: none; }
 
   /* room: collapse the editorial grid into a clean single column */
   .room { padding: 110px 24px; }

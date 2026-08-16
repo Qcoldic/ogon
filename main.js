@@ -7,19 +7,39 @@ if (document.fonts && document.fonts.ready) document.fonts.ready.then(reveal);
 window.addEventListener("load", reveal);
 setTimeout(reveal, 1200); // hard fallback if fonts/load hang
 
-// 2. Hero ember video. Autoplay only on capable, motion-OK, larger screens;
-//    otherwise the poster / warm placeholder stays (saves data + battery).
+// 2. Hero ember video. Plays on every screen (1.4 MB, muted, inline); only a
+//    reduced-motion preference keeps it still — then the poster layer shows.
 const heroVideo = document.querySelector(".hero-video");
 if (heroVideo) {
   const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
-  const smallScreen = matchMedia("(max-width: 860px)").matches;
-  if (reduceMotion || smallScreen) {
+
+  // Fading the video in must NOT hang on a single 'canplay': with preload="auto"
+  // the file is often ready before main.js runs, the event has already fired,
+  // and the once-listener never gets called — leaving the video at opacity 0
+  // (i.e. an empty hero). Check the state directly and listen to several events.
+  const showVideo = () => {
+    heroVideo.classList.add("ready");
+    const media = heroVideo.closest(".hero-media");
+    if (media) media.classList.add("has-video"); // fades the poster layer out
+  };
+
+  if (reduceMotion) {
     heroVideo.removeAttribute("autoplay");
     heroVideo.pause();
   } else {
-    heroVideo.addEventListener("canplay", () => heroVideo.classList.add("ready"), { once: true });
-    const p = heroVideo.play();
-    if (p) p.catch(() => {}); // autoplay blocked -> placeholder stays, no error
+    if (heroVideo.readyState >= 2) showVideo(); // first frame already decoded
+    heroVideo.addEventListener("loadeddata", showVideo);
+    heroVideo.addEventListener("playing", showVideo);
+
+    const start = () => {
+      const p = heroVideo.play();
+      if (p) p.catch(() => {}); // autoplay blocked -> poster stays, no error
+    };
+    start();
+    // iOS Low Power Mode blocks inline autoplay: retry on the first touch/tap.
+    ["touchstart", "click"].forEach((ev) =>
+      document.addEventListener(ev, () => { if (heroVideo.paused) start(); }, { once: true, passive: true })
+    );
   }
 }
 
